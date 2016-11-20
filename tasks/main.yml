@@ -1,0 +1,35 @@
+---
+# tasks file for djcf.fish
+
+- name: Add Fish Repo (Jessie)
+  copy:
+    src: "{{ role_path }}/files/fish.list.jessie"
+    dest: /etc/apt/sources.list.d/fish.list 
+  when: 
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "8"
+- name: Add Fish Repo (Wheezy)
+  copy:
+    src: "{{ role_path }}/files/fish.list.wheezy"
+    dest: /etc/apt/sources.list.d/fish.list 
+  when: 
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "7"
+- name: Add Fish Repo Key (Jessie)
+  apt_key: url=http://download.opensuse.org/repositories/shells:fish:release:2/Debian_8.0/Release.key state=present
+  when: 
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "8"
+- name: Add Fish Repo Key (Wheezy)
+  apt_key: url=http://download.opensuse.org/repositories/shells:fish:release:2/Debian_7.0/Release.key state=present
+  when: 
+    - ansible_distribution == "Debian"
+    - ansible_distribution_major_version == "7"
+- name: Install Fish
+  apt: pkg=fish state=installed update_cache=true
+- name: Change user shell
+  user:
+    name: "{{ item }}"
+    shell: /usr/bin/fish
+  with_items: "{{ fish_users }}"
+  when: fish_users | length > 0
